@@ -8,8 +8,8 @@ class MyNode
 {
 public:
 	MyNode()
-	: ac("sequence", true)
-	{
+	: ac("sequence", true)//el true levanta un thread que va a estar haciendo spin para ver los mensajes. importante los spins para las comunicacione
+	{																															//sea cual sea en ros
 		//ROS_INFO("Waiting for action server to start.");
 		ac.waitForServer();
 		//ROS_INFO("Action server started, sending goal.");
@@ -27,17 +27,18 @@ public:
 
 	}
 
-	void feedbackCb(const softarq_msgs::SequenceFeedbackConstPtr& feedback)
+	void feedbackCb(const softarq_msgs::SequenceFeedbackConstPtr& feedback)//feedback que va a ir dando al cliente
 	{
 		ROS_INFO("Current count %ld", feedback->current);
 	}
 
+	//callback al que va a llamar cuando acabe la accion
 	void doneCb(const actionlib::SimpleClientGoalState& state,
 			const softarq_msgs::SequenceResultConstPtr& result)
 	{
 		ROS_INFO("Finished in state [%s]", state.toString().c_str());
 		ROS_INFO("Answer: %ld", result->last);
-		ros::shutdown();
+		ros::shutdown();//salimos del spin cuando ya hemos acabado
 	}
 
 private:

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cameras_cpp)
 
+set (CMAKE_CXX_STANDARD 17)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslint
@@ -12,9 +14,20 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
   darknet_ros_msgs
+  message_generation
 )
 
 find_package(OpenCV)
+
+add_message_files(
+  FILES 
+  bbx_custom.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 catkin_package(
@@ -27,6 +40,7 @@ CATKIN_DEPENDS
   image_transport
   pcl_conversions
   pcl_ros
+  message_runtime
 )
 
 include_directories(
@@ -51,6 +65,7 @@ target_link_libraries(nodo_rgbd_tf ${catkin_LIBRARIES})
 
 add_executable(nodo_bbx src/nodo_bbx.cpp)
 target_link_libraries(nodo_bbx ${catkin_LIBRARIES})
+add_dependencies(nodo_bbx cameras_cpp_generate_messages_cpp)
 
 set(ROSLINT_CPP_OPTS "--filter=-runtime/printf")
 

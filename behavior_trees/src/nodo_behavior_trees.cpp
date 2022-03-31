@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <memory>
+#include "behavior_trees/ApproachObject.h"
+#include "behavior_trees/CheckBattery.h"
+#include "behavior_trees/OpenGripper.h"
+#include "behavior_trees/CloseGripper.h"
 
 #include "ros/ros.h"
-
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
-#include "behaviortree_cpp_v3/utils/shared_library.h"
 #include "behaviortree_cpp_v3/loggers/bt_zmq_publisher.h"
 
 #include "ros/package.h"
@@ -29,24 +29,26 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "behavior_tree");
   ros::NodeHandle n;
 
-  BT::BehaviorTreeFactory factory;
-  BT::SharedLibrary loader;
+  BT::BehaviorTreeFactory factory;//creo el arboll
 
-  factory.registerFromPlugin(loader.getOSName("asr_approach_object_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("asr_check_battery_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("asr_close_gripper_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("asr_open_gripper_bt_node"));
+  //registro los nodos los cuales añado y compilo como librerias en el cmakelists. Ademas en la clase de cada nodo al final, pones el metodo para que se 
+  //identifique el nombre del nodo a su clase
+  factory.registerNodeType<behavior_trees::ApproachObject>("ApproachObject");
+  factory.registerNodeType<behavior_trees::CheckBattery>("CheckBattery");
+  factory.registerNodeType<behavior_trees::OpenGripper>("OpenGripper");
+  factory.registerNodeType<behavior_trees::CloseGripper>("CloseGripper");
 
-  auto blackboard = BT::Blackboard::create();
+  auto blackboard = BT::Blackboard::create();//creo la blackboard
+
   blackboard->set("object", "cup");
 
-  std::string pkgpath = ros::package::getPath("behavior_trees");
+  std::string pkgpath = ros::package::getPath("behavior_trees");//buscas el behavior tree creado con xml
   std::string xml_file = pkgpath + "/behavior_trees_xml/tree_1.xml";
 
-  BT::Tree tree = factory.createTreeFromFile(xml_file, blackboard);
+  BT::Tree tree = factory.createTreeFromFile(xml_file, blackboard);//creas el arbol
   auto publisher_zmq = std::make_shared<BT::PublisherZMQ>(tree, 10, 1666, 1667);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(5);
 
   int count = 0;
 

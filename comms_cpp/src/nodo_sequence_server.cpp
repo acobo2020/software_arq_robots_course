@@ -19,7 +19,7 @@ public:
     as_(nh_, name, boost::bind(&SequenceAction::executeCB, this, _1), false),
     action_name_(name)
   {
-    as_.start();
+    as_.start();//incidamos que empiece a servir el servidor
   }
 
   ~SequenceAction(void)
@@ -49,7 +49,7 @@ public:
 
       feedback_.current++;
 
-      as_.publishFeedback(feedback_);
+      as_.publishFeedback(feedback_);//publicamos el feedback
 
       r.sleep();
     }
@@ -59,7 +59,7 @@ public:
       result_.last = feedback_.current;
       ROS_INFO("%s: Succeeded", action_name_.c_str());
 
-      as_.setSucceeded(result_);
+      as_.setSucceeded(result_);//indicamos el resultado de la accion
     }
   }
 

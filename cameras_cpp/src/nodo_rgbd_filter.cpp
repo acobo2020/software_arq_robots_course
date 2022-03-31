@@ -39,15 +39,14 @@ typedef struct
   ros::Publisher cloud_pub_;
 }
 HSVInfo;
-
 class RGBDFilter
 {
 public:
   RGBDFilter()
   {
     initHSV();
-
-    cloud_sub_ = nh_.subscribe("/camera/depth/points", 1, &RGBDFilter::cloudCB, this);
+    //para el kobuki real el topic es depth_registered en lugar de depth
+    cloud_sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &RGBDFilter::cloudCB, this);
 
     if ( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) )
     {
@@ -57,15 +56,26 @@ public:
 
   void cloudCB(const sensor_msgs::PointCloud2::ConstPtr& cloud_in)
   {
+    //pasamos a un tipo de datos plc. En este caso siginifica que es un poincloud que cada uno de los datos que contiene es un punto PointXYZRGB
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcrgb(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::fromROSMsg(*cloud_in, *pcrgb);
 
+    auto point = pcrgb->at(320,240);//nos da el punto del centro de la imagen
+    if(!std::isnan(point.x))
+    {
+      //la z es la distancia a lo lejos
+      std::cerr << "(" << point.x << ", " << point.y << ", " << point.z << ") [" 
+        << static_cast<int>(point.r) << ", " << static_cast<int>(point.g) << ", " << static_cast<int>(point.b) << std::endl;
+    }
+
+    //iteramos cada punto para pasarlo a HSV
     for (int i=0; i < MAX_CHANNELS; i++)
     {
       pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcrgb_out(new pcl::PointCloud<pcl::PointXYZRGB>);
       pcl::PointCloud<pcl::PointXYZRGB>::iterator it;
       for (it = pcrgb->begin(); it != pcrgb->end(); ++it)
       {
+        //quitamos los infinitos
         if (!std::isnan(it->x))
         {
           pcl::PointXYZHSV hsv;

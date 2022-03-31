@@ -3,6 +3,7 @@
 
 #include <math.h>
 
+//si fuese una clase el callback habria que llamarlo como los mensajes con &nameclas::metodo, this
 bool distance(softarq_msgs::Distance::Request  &req,
          softarq_msgs::Distance::Response &res)
 {

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(geometry_tf)
 
+set (CMAKE_CXX_STANDARD 17)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
@@ -22,7 +23,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(geometry_tf src/geometry_tf/transforms.cpp)
+add_library(geometry_tf 
+  src/geometry_tf/transforms.cpp
+)
 
 set(LINK_LIBS
   geometry_tf
